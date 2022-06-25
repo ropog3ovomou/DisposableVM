@@ -1,0 +1,151 @@
+#! /bin/bash
+
+cd "$(dirname "$0")"
+set -e
+#set -x
+err=yes
+
+on_exit() {
+	if test -z $err; then
+		echo Success
+		sleep 1
+		echo "QUITAPP"
+	else
+		echo "DETAILS:SHOW"
+		echo "Execution aborted."
+		exit 1
+	fi
+}
+trap on_exit EXIT
+
+apple=`set|grep apple|wc -l`
+microsoft=`set|grep microsoft|wc -l`
+if test $apple -gt $microsoft; then
+	. ./mac.conf
+else
+	. ./win.conf
+fi
+
+file="$main_dir/vmdata.dat"
+cache_dir="$main_dir/disposableVM"
+my_dir="$(dirname $0)"
+me="$(basename $0)"
+
+configure(){
+	echo Setting working VM...
+	ls "$1" | grep -i '\.vmx$' >/dev/null
+	mkdir -p "$main_dir"
+	local abs_path="$1"
+	echo $abs_path | grep '\.vmx$' >/dev/null && abs_path="$(dirname "$abs_path")"
+	abs_path="$(cd "$abs_path"; echo $(pwd))"
+	if test "$os" = "win"; then
+		case "$abs_path" in
+			/*) if pwd -W >/dev/null 2>&1
+			  then
+				  abs_path="$(echo $(cd "$abs_path" && pwd -W;) | sed 's|/|\\|g')" #msys mingw
+			  else
+				  abs_path="$(cygpath -w "$abs_path")" #cygwin
+			  fi ;;
+		esac
+	fi
+	echo "$abs_path" > "$main_dir"/Current
+	echo Installing services....
+	services_on
+	echo enabling autorun...
+	autorun_on
+	echo "NOTIFICATION:VM was selected successfullly. Now you can use the notification area menu to manage it"
+}
+mkpass() {
+	for x in $(seq 10); do echo -n $RANDOM;done
+}
+start() {
+	undeploy
+	unprepare
+	prepare
+	#pwd=`base32 </dev/urandom | head -c 53`
+	echo Encypting disposable environment...
+	local pwd=$(mkpass)
+	deploy
+	unprepare
+	pwd=$(mkpass) #overwrite
+	echo "NOTIFICATION:VM created. Trying to launch..."
+	run
+}
+
+dispose() {
+	echo "Disposing existing machine if any..."
+	undeploy
+	echo "NOTIFICATION:VM disposed."
+}
+
+prepare() {
+	echo Creating disposable VM...
+	local n="`ls "$origvm_dir"/*.vmx | wc -l`"
+	if [ "$n" -eq 0 ]; then
+		echo >&2
+		echo >&2 "$me"": cannot find *.vmx in '$origvm_dir'."
+		echo >&2 "$me"': Reconfigure working VM by selecting a VMX file.'
+		return 1
+	elif [ "$n" -eq 1 ]; then
+		local vmx_file="$(echo "$origvm_dir"/*.vmx)"
+		grep -Fq uuid.action "$vmx_file" || echo >> "$vmx_file" "uuid.action = \"keep\""
+		mkdir -p "$cache_dir"
+		pushd "$origvm_dir" >/dev/null
+		cp $copy_files "$cache_dir"/
+		popd >/dev/null
+		vmx_file_copy="$(echo "$cache_dir"/*.vmx)"
+		local name="`grep 'displayName' "$vmx_file_copy"|cut -d '"' -f 2`"
+		local disks=`grep '^[^#]*fileName.*vmdk' "$vmx_file_copy"|cut -d . -f1`
+		local disk_pattern=`echo $disks|sed 's/[[:space:]]\+/\\\\|/g'`
+		local newName="$name_prefix $name"
+		local vmx_dir="$(echo $origvm_dir|sed 's!\\!\\\\!g')"
+		sed -e "/displayName/ s/$name/$newName/"\
+		    -e "/^[[:space:]]*suspend\.disabled/d"\
+		    -e "/^[[:space:]]*\($disk_pattern\)\.mode/d"\
+		    -e "/^[[:space:]]*\($disk_pattern\)\.fileName.*vmdk/ s!\"\\([^/][^:]*\\)\"!\"$vmx_dir$fs_delim\\1\"!g"\
+		    "$vmx_file" > "$vmx_file_copy"
+		echo >> "$vmx_file_copy" "suspend.disabled = \"true\""
+		for d in $disks; do echo >> "$vmx_file_copy" "$d.mode = \"independent-nonpersistent\""; done
+	else
+		echo >&2
+		echo >&2 "$me: more than one *.vmx file found."
+		echo >&2 "$me: \"$origvm_dir\" directory must contain exactly one *.vmx file."
+		return 1
+	fi
+}
+unprepare() {
+	rm -rf "$cache_dir"
+}
+status() {
+	if mounted
+	then
+		echo "ALERT:VM is active|Mount point: $mount_point"
+	else
+		echo "ALERT:VM not mounted|Data is void"
+	fi
+	echo "QUITAPP"
+}
+
+case $1 in
+build|install|uninstall|configure)
+	$1 "$2"
+;;
+start|dispose|status|edit)
+	if [ -f "$main_dir/Current" ]
+	then 
+		origvm_dir="$(cat "$main_dir/Current")"
+	else
+		echo "Virtual Machine is not selected. Please run DisposableVM app and select VM from status menu"
+	fi
+	$1
+;;
+*)
+	echo >&2 "Usage: $me [ configure | build | install | uninstall | edit | start | dispose ]"
+	echo >&2 "  configure VMX_FILE - set template to VMX_FILE"
+	echo >&2 "  prepare - create VM cache in "$cache_dir" directory"
+	echo >&2 "  edit    - start the original VM in order to add software, ect."
+	echo >&2 "  start   - start or restart the disposable VM"
+	echo >&2 "  dispose - close the VM and remove all traces"
+	exit 1
+esac
+err=''

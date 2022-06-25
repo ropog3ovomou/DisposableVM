@@ -1,0 +1,71 @@
+#! /bin/bash
+load(){
+dir=~/Library/Application\ Support/DisposableVM
+vmpath="$(cat "$dir"/Current 2>/dev/null)"
+vm="$(basename "$vmpath" | rev | cut -d . -f 2 | rev)"
+}
+load
+msg_novmw="No VMWare Fusion installed"
+msg_slct="Select VM to start..."
+msg_chng="Select another VM..."
+msg_strt="Start..."
+msg_dsps=Dispose
+msg_edt="Run original..."
+msg_vmw="Open VMWare Fusion..."
+msg_editWelcome=""
+
+trap "echo \"ALERT:Error|Unknown error\"" ERR
+set -E
+run(){
+	case "$@" in
+		$msg_strt)
+			./launcher.app/Contents/MacOS/ProgressBar start
+			;;
+		$msg_dsps)
+			./launcher.app/Contents/MacOS/ProgressBar dispose
+			;;
+		$msg_edt)
+			echo "ALERT:Warning|$msg_editHelp"
+			./launcher.app/Contents/MacOS/ProgressBar edit
+			;;
+		$msg_vmw)
+		 open "/Applications/VMWare Fusion.app"
+			;;
+		*)
+			open ./SelectVM.app
+			;;
+		esac
+}
+menu_main(){
+	echo "MENUITEMICON|pencil.icns|$vm"
+	echo -----
+	echo "MENUITEMICON|play.icns|$msg_strt"
+	echo "MENUITEMICON|delete.icns|$msg_dsps"
+#	echo -----
+#	echo "MENUITEMICON|vm.icns|$msg_vmw"
+#	echo "MENUITEMICON|run.icns|$msg_edt"
+#	echo -----
+#	echo "MENUITEMICON|pencil.icns|$msg_chng"
+}
+menu_config(){
+	if test -d "/Applications/VMWare Fusion.app" >/dev/null 2>&1
+	then
+		echo "MENUITEMICON|pencil.icns|$msg_slct"
+	else
+		echo $msg_novmw
+	fi
+}
+main(){
+	if test -d "$vmpath"
+	then
+		menu_main
+	else
+		menu_config
+	fi
+}
+if [ $# -eq 0 ]
+then
+	main
+else
+	run $@
+fi

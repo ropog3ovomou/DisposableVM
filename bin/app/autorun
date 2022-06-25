@@ -1,0 +1,14 @@
+#! /bin/bash
+turn_on() {
+	osascript -e 'tell application "System Events" to make login item at end with properties {path:"/Applications/DisposableVM.app", hidden:false}'
+}
+turn_off(){
+	osascript -e 'tell application "System Events" to delete login item "DisposableVM"'
+}
+if [ -z "$1" ];then
+	turn_on
+elif [ "$1" = "off" ];then
+	turn_off
+else
+	echo "Usage: autorun [off]"
+fi

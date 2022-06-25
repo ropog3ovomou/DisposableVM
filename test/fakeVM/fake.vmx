@@ -1,0 +1,3 @@
+displayName = "Fake VM"
+scsi0:0.fileName = "C:\fake.vmdk"
+uuid.action = "keep"

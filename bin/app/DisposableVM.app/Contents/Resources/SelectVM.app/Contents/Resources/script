@@ -1,0 +1,82 @@
+#!/bin/bash
+trap die ERR
+set -E
+
+
+foreground() {
+	osascript<<EOF
+		tell application "System Events"
+		set processList to every process whose unix id is "$PPID"
+		repeat with proc in processList
+		set the frontmost of proc to true
+		end repeat
+		end tell
+EOF
+}
+function dialog() {
+	icon=caution
+		osascript <<EOT
+		tell app "System Events"
+		display dialog "$1" buttons {"OK"} default button 1 with icon $icon with title "$(basename $0)"
+		return  -- Suppress result
+		end tell
+EOT
+}
+function help(){
+msg <<END
+	
+	
+Drag a VMWare machine file onto this window.
+	
+To locate the file, right-click a machine name in VMWare Fusion and select "Show in Finder", or use Finder directly. Usually, those files are located in the "Virtual Machines" subdirectory of your home folder. 
+DETAILS:SHOW
+END
+}
+
+msg(){
+	echo "DETAILS:SHOW"
+	cat
+}
+
+accept(){
+	echo $@ received....
+	echo "DETAILS:HIDE"
+}
+bar(){
+	echo "PROGRESS:$1"
+	sleep 0.3
+}
+write(){
+	bar 0
+	bar 30
+	bar 60
+	bar 100
+	cd ../../../
+	export	PATH
+	./disposable configure "$1"
+ msg <<END
+REFRESH
+Success.
+END
+	sleep 2.5
+	echo "DETAILS:HIDE"
+	echo "QUITAPP"
+}
+
+die(){
+	echo |msg
+	exit 0
+}
+
+if [ $# -eq 0 ]
+then
+	foreground
+	help
+elif [ $# -gt 1 ]
+then
+	accept $# files
+	echo You cannot pass more than one file.| msg
+else
+	accept 1 file
+	write "$1"
+fi
