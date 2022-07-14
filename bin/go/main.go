@@ -10,11 +10,10 @@ import (
 	"syscall"
 	"path/filepath"
 
-	"github.com/getlantern/systray"
+	"github.com/ropog3ovomou/systray"
 	"github.com/ropog3ovomou/DisposableVM/bin/go/icon"
-	//"github.com/skratchdot/open-golang/open"
 	"github.com/sqweek/dialog"
-	"github.com/gen2brain/beeep"
+	"github.com/ropog3ovomou/beeep"
 )
 
 func main() {

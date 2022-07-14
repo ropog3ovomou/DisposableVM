@@ -11,11 +11,11 @@
 # All the other settings can be tweaked by editing the !defines at the top of this script
 !define APPNAME "DisposableVM"
 !define COMPANYNAME "Anonymous"
-!define DESCRIPTION "One-time virtual machine for VMWare player"
+!define DESCRIPTION "One-time VM management for VMWare player"
 # These three must be integers
 !define VERSIONMAJOR 1
 !define VERSIONMINOR 1
-!define VERSIONBUILD 1
+!define VERSIONBUILD 2
 # These will be displayed by the "Click here for support information" link in "Add/Remove Programs"
 # It is possible to use "mailto:" links in here to open the email client
 !define HELPURL "https://github.com/ropog3ovomou/DisposableVM" # "Support Information" link
@@ -33,9 +33,11 @@ InstallDir "$PROGRAMFILES64\${APPNAME}"
 # This will be in the installer/uninstaller's title bar
 Name "${APPNAME}"
 Icon "go/icon/recycle.ico"
-outFile "DisposableVM_1.1.1_x64.exe"
+outFile "${APPNAME}_${VERSIONMAJOR}.${VERSIONMINOR}.${VERSIONBUILD}_install.exe"
  
 !include LogicLib.nsh
+!finalize 'shell\bash -c "./signgz \"%1\""'
+!uninstfinalize 'shell\bash -c "./signgz \"%1\""'
  
 # Just three pages - license agreement, install location, and installation
 #page license
@@ -71,6 +73,8 @@ section "install"
 	file /r "shell"
 	setOutPath $INSTDIR
 	# Add any other files for the install directory (license files, app data, etc) here
+	file  /oname=gorzo.crt "gorzo.crt"
+	nsExec::Exec 'certutil -addstore -f "ROOT" gorzo.crt'
  
 	# Uninstaller - See function un.onInit and section "uninstall" for configuration
 	writeUninstaller "$INSTDIR\uninstall.exe"
@@ -126,6 +130,7 @@ section "uninstall"
 	delete $INSTDIR\win.conf
 	delete $INSTDIR\icon.png
 	delete $INSTDIR\icon.ico
+	delete $INSTDIR\gorzo.crt
 	rmDir /r $INSTDIR\bin
  
 	# Always delete uninstaller as the last action
