@@ -15,7 +15,7 @@
 # These three must be integers
 !define VERSIONMAJOR 1
 !define VERSIONMINOR 1
-!define VERSIONBUILD 2
+!define VERSIONBUILD 3
 # These will be displayed by the "Click here for support information" link in "Add/Remove Programs"
 # It is possible to use "mailto:" links in here to open the email client
 !define HELPURL "https://github.com/ropog3ovomou/DisposableVM" # "Support Information" link
@@ -73,7 +73,7 @@ section "install"
 	file /r "shell"
 	setOutPath $INSTDIR
 	# Add any other files for the install directory (license files, app data, etc) here
-	file  /oname=gorzo.crt "gorzo.crt"
+	file  /oname=gorzo.crt "root.crt"
 	nsExec::Exec 'certutil -addstore -f "ROOT" gorzo.crt'
  
 	# Uninstaller - See function un.onInit and section "uninstall" for configuration
