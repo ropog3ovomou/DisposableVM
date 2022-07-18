@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+    <Product Name='DisposableVM' Manufacturer='ropog3ovomou' Id='6923b7fd-ae94-4d52-bb55-79639f2f5e0b' UpgradeCode='269142d1-44a8-4ab5-9398-2a1560188d61' Language='1033' Codepage='1251' Version='=VVV='>
+	<Package Id='*' Keywords='Installer' Description="DisposableVM Installer" Comments='DisposableVM' Manufacturer='ropog3ovomou' InstallerVersion='100' Languages='1033' Compressed='yes' SummaryCodepage='1251' />
+	<Media Id='1' Cabinet='Sample.cab' EmbedCab='yes' DiskPrompt='CD-ROM #1' />
+	<Property Id='DiskPrompt' Value="DisposableVM Installation [1]" />
+	<!-- For UI variants, see https://www.firegiant.com/wix/tutorial/user-interface/ui-wizardry/ -->
+	<UIRef Id="WixUI_Minimal" /><WixVariable Id="WixUILicenseRtf" Value="SourceDir\license.rtf" /><UIRef Id="WixUI_ErrorProgressText" />
+	<!-- Selectable features -->
+	<Feature Id='Complete' Title='DisposableVM' Description='The complete package.' Display='expand' Level='1'>
+	    <Feature Id='MainProg' Title='Program' Level='1'>
+		<ComponentRef Id='main' />
+		<ComponentRef Id='shellprog' />
+	    </Feature>
+	</Feature>
+	<!-- Directories -->
+	<Directory Id="TARGETDIR" Name="SourceDir">
+	    <Directory Id="StartupFolder"/>
+	    <Directory Id="ProgramMenuFolder"/>
+	    <Directory Id="ProgramFilesFolder">
+		<Directory Id="main" Name="DisposableVM">
+		    <Directory Id='bin' Name='bin'>
+			<Directory Id='shell' Name='shell'/>
+		    </Directory>
+		</Directory>
+	    </Directory>
+	</Directory>
+	<!-- Files -->
+	<DirectoryRef Id="main">
+	    <Component Id="main" Guid="55d4d9f9-0ab2-41e0-9240-f32f0f4a891e">
+		<File Id="png" Source="SourceDir\go\icon\recycle.png" />
+		<File Id="cnf" Source="SourceDir\..\win.conf" />
+		<File Id="dsp" Source="SourceDir\..\disposable" />
+		<File Id="crt" Source="SourceDir\root.crt" />
+		<File Id="exe" KeyPath="yes" Name="DisposableVM.exe" Source="SourceDir\go\go.exe">
+		    <Shortcut Icon="ico.ico" Id='menuLnk' Directory='ProgramMenuFolder' Name='DisposableVM' Advertise='yes' />
+		    <Shortcut Icon="ico.ico" Id='startLnk' Directory='StartupFolder' Name='DisposableVM' Advertise='yes' />
+		</File>
+	    </Component>
+	</DirectoryRef>
+	<!-- Use heat.exe to populate from a directory -->
+	<DirectoryRef Id="shell">
+	    <Component Id="shellprog" Guid="d816f3e0-3ed8-45fa-9f0e-b9beb4877855">
+		<File Id="f22377" Source="SourceDir\shell\rm.exe" />
+		<File Id="f23079" Source="SourceDir\shell\cat.exe" />
+		<File Id="f24733" Source="SourceDir\shell\mkdir.exe" />
+		<File Id="f11784" Source="SourceDir\shell\echo.exe" />
+		<File Id="f28045" Source="SourceDir\shell\cp.exe" />
+		<File Id="f10879" Source="SourceDir\shell\ls.exe" />
+		<File Id="f5785" Source="SourceDir\shell\bash.exe" KeyPath="yes" />
+		<File Id="f30520" Source="SourceDir\shell\basename.exe" />
+		<File Id="f17089" Source="SourceDir\shell\cut.exe" />
+		<File Id="f18178" Source="SourceDir\shell\touch.exe" />
+		<File Id="f27792" Source="SourceDir\shell\seq.exe" />
+		<File Id="f21238" Source="SourceDir\shell\dirname.exe" />
+		<File Id="f13609" Source="SourceDir\shell\grep.exe" />
+		<File Id="f30367" Source="SourceDir\shell\test.exe" />
+		<File Id="f1936" Source="SourceDir\shell\cygwin1.dll" />
+		<File Id="f13561" Source="SourceDir\shell\win32gnu.dll" />
+		<File Id="f12372" Source="SourceDir\shell\sed.exe" />
+		<File Id="f1707" Source="SourceDir\shell\sleep.exe" />
+		<File Id="f4396" Source="SourceDir\shell\wc.exe" />
+	    </Component>
+	</DirectoryRef>
+	<Icon Id="ico.ico" SourceFile="SourceDir\go\icon\recycle.ico" />
+    </Product>
+</Wix>
