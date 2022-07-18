@@ -62,7 +62,7 @@ func onReady() {
 		xstart.Disable()
 		xdispose.Disable()
 	} else {
-		// Schrodinger: file may or may not exist. See err for details.
+		// File may or may not exist. See err for details.
 		dialog.Message("%s", err).Error()
 	}
 	for {

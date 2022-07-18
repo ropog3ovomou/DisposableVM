@@ -8,5 +8,5 @@ if which cygpath >/dev/null 2>&1 && test -f "$cert"
 then
 	bin="$(cygpath -w "$1")"
 	pfx="$(cygpath -w "$cert")"
-	signtool sign /fd SHA256 /a /f "$pfx" "$bin"
+	signtool sign /fd SHA256 /a /f "$pfx" /t "http://timestamp.comodoca.com/authenticode" "$bin"
 fi

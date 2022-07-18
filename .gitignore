@@ -2,3 +2,7 @@
 *.exe
 *.syso
 *.pkg
+*.msi
+wix.*
+*.wixpdb
+*.tmp
