@@ -499,7 +499,7 @@
 				<key>FOLLOW_SYMBOLIC_LINKS</key>
 				<false/>
 				<key>IDENTIFIER</key>
-				<string>com.mygreatcompany.pkg.DisposableVM</string>
+				<string>com.gorodzolotoy.pkg.DisposableVM</string>
 				<key>LOCATION</key>
 				<integer>0</integer>
 				<key>NAME</key>
@@ -515,7 +515,7 @@
 				<key>USE_HFS+_COMPRESSION</key>
 				<false/>
 				<key>VERSION</key>
-				<string>1.0</string>
+				<string>x-x-x</string>
 			</dict>
 			<key>TYPE</key>
 			<integer>0</integer>

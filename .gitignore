@@ -6,3 +6,4 @@
 wix.*
 *.wixpdb
 *.tmp
+.DS_Store

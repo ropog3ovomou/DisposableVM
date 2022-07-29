@@ -28,7 +28,7 @@ msg <<END
 	
 Drag a VMWare machine file onto this window.
 	
-To locate the file, right-click a machine name in VMWare Fusion and select "Show in Finder", or use Finder directly. Usually, those files are located in the "Virtual Machines" subdirectory of your home folder. 
+To locate a file, open VMWare Fusion ➜ Window ➜ Virtual Machine Library, right-click a machine name and select "Show in Finder".
 DETAILS:SHOW
 END
 }

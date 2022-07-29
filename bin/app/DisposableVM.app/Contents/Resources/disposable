@@ -75,7 +75,7 @@ start() {
 dispose() {
 	echo "Disposing existing machine if any..."
 	undeploy
-	echo "NOTIFICATION:VM disposed."
+	echo "NOTIFICATION: OK | me: VM disposed."
 }
 
 prepare() {
@@ -95,7 +95,7 @@ prepare() {
 		popd >/dev/null
 		vmx_file_copy="$(echo "$cache_dir"/*.vmx)"
 		local name="`grep 'displayName' "$vmx_file_copy"|cut -d '"' -f 2`"
-		local disks=`grep '^[^#]*fileName.*vmdk' "$vmx_file_copy"|cut -d . -f1`
+		local disks="`grep '^[^#]*fileName.*vmdk' "$vmx_file_copy"|cut -d . -f1`"
 		local disk_pattern=`echo $disks|sed 's/[[:space:]]\+/\\\\|/g'`
 		local newName="$name_prefix $name"
 		local vmx_dir="$(echo $origvm_dir|sed 's!\\!\\\\!g')"
